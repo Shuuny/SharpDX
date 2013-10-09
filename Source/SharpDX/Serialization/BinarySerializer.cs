@@ -348,6 +348,21 @@ namespace SharpDX.Serialization
         }
 
         /// <summary>
+        /// Register a dynamic serializer using an external action for a class, that has no empty parameterless constructor.
+        /// Can be used to serialize SharpDX internal classes like <seealso cref="SharpDX.Toolkit.Graphics.Texture2D"/>
+        /// </summary>
+        /// <typeparam name="T">Type of the element to serialize.</typeparam>
+        /// <param name="id">The id to use for serializing T.</param>
+        /// <param name="serializer">The serializer.</param>
+        public void RegisterDynamicNoConstructor<T>(FourCC id, SerializerAction serializer) where T : class
+        {
+            var dynamicSerializer = new Dynamic { Id = id, Type = typeof(T), DynamicSerializer = serializer };
+            dynamicSerializer.Reader = dynamicSerializer.DynamicReaderNoConstructor<T>;
+            dynamicSerializer.Writer = dynamicSerializer.DynamicWriter;
+            RegisterDynamic(dynamicSerializer);
+        }
+
+        /// <summary>
         /// Begin to serialize a a new chunk.
         /// </summary>
         /// <param name="chunkId">The chunk id.</param>
@@ -2817,6 +2832,19 @@ namespace SharpDX.Serialization
             public object DynamicReader<T>(BinarySerializer serializer) where T : new()
             {
                 object value = new T();
+                DynamicSerializer(ref value, serializer);
+                return value;
+            }
+
+            /// <summary>
+            /// Reader for objects that don't have emtpy constructors
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <param name="serializer"></param>
+            /// <returns></returns>
+            public object DynamicReaderNoConstructor<T>(BinarySerializer serializer) where T : class
+            {
+                object value = (T)null;
                 DynamicSerializer(ref value, serializer);
                 return value;
             }

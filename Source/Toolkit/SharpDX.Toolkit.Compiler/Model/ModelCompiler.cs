@@ -525,6 +525,7 @@ namespace SharpDX.Toolkit.Graphics
 
                 // Calculate the bounding sphere.
                 BoundingSphere.FromPoints(boundingPoints, 0, boundingPointCount, out mesh.BoundingSphere);
+                
             } 
 
             // continue for all child nodes
